@@ -357,6 +357,8 @@ class TrainingLoop(ABC):
             for batch in batches:
                 # Recall that torch *accumulates* gradients. Before passing in a
                 # new instance, you need to zero out the gradients from the old instance
+                if self.model.use_perturbation:
+                    batch = self.model.perturbator.sample(positive_batch=batch)
                 self.optimizer.zero_grad()
 
                 # Get batch size of current batch (last batch may be incomplete)

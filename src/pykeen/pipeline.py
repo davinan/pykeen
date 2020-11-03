@@ -183,6 +183,7 @@ from .losses import Loss, _LOSS_SUFFIX, get_loss_cls
 from .models import get_model_cls
 from .models.base import Model
 from .optimizers import get_optimizer_cls
+from .perturbations import Perturbator, get_perturbator_cls
 from .regularizers import Regularizer, get_regularizer_cls
 from .sampling import NegativeSampler, get_negative_sampler_cls
 from .stoppers import EarlyStopper, Stopper, get_stopper_cls
@@ -742,6 +743,9 @@ def pipeline(  # noqa: C901
     device: Union[None, str, torch.device] = None,
     random_seed: Optional[int] = None,
     use_testing_data: bool = True,
+    # Perturbations
+    use_perturbation: bool = False,
+    perturbator: Union[None, str, Type[Perturbator]] = None,
 ) -> PipelineResult:
     """Train and evaluate a model.
 
@@ -929,6 +933,12 @@ def pipeline(  # noqa: C901
             optimizer=optimizer_instance,
             negative_sampler_cls=negative_sampler,
             negative_sampler_kwargs=negative_sampler_kwargs,
+        )
+
+    model.use_perturbation = use_perturbation
+    if use_perturbation:
+        model.perturbator = get_perturbator_cls(perturbator)(
+            triples_factory=training
         )
 
     evaluator = get_evaluator_cls(evaluator)
